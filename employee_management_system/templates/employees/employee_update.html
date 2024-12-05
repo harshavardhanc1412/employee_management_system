@@ -1,0 +1,39 @@
+<!-- employees/employee_update.html -->
+<form method="post" id="employeeForm">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Update Employee</button>
+</form>
+
+<div id="form-messages"></div>
+
+<script>
+$('#employeeForm').submit(function(event) {
+    event.preventDefault();
+
+    var formData = $(this).serialize();
+
+    $.ajax({
+        type: 'POST',
+        url: window.location.href,
+        data: formData,
+        success: function(response) {
+            if (response.success) {
+                $('#form-messages').html('<div class="alert alert-success">Employee updated successfully.</div>');
+            } else {
+                $('#form-messages').html('<div class="alert alert-danger">Form submission failed. Please check the errors.</div>');
+                // Display form errors if any
+                if (response.errors) {
+                    $.each(response.errors, function(key, value) {
+                        $('#form-messages').append('<p>' + key + ': ' + value + '</p>');
+                    });
+                }
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error);
+            $('#form-messages').html('<div class="alert alert-danger">Failed to submit form.</div>');
+        }
+    });
+});
+</script>

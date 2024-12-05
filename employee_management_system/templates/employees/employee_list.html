@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee List</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // AJAX for deleting an employee
+            $('.btn-danger').click(function(e) {
+                e.preventDefault(); 
+    
+                var deleteUrl = $(this).find('a').attr('href'); 
+    
+                if (confirm("Are you sure you want to delete this employee?")) {
+                    $.ajax({
+                        type: 'POST',
+                        url: deleteUrl, 
+                        data: {
+                            csrfmiddlewaretoken: csrftoken
+                        },
+                        success: function(response) {
+                            if (response['success']) {
+                                location.reload();
+                                alert('Successfully deleted employee.');
+                            } else {
+                                alert('Failed to delete employee.');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Failed to delete employee:', error);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Phone Number</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for employee in employees %}
+            <tr>
+                <td>{{ employee.name }}</td>
+                <td>{{ employee.email }}</td>
+                <td>{{ employee.age }}</td>
+                <td>{{ employee.gender }}</td>
+                <td>{{ employee.phone_number }}</td>
+                <td>
+                    <button class="btn btn-warning"><a href="{% url 'employee_update' employee.id %}">Update</a></button>&nbsp;&nbsp;
+                    <button class="btn btn-danger"><a href="{% url 'employee_delete' employee.id %}">Delete</a></button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="{% url 'employee_create' %}">Add Employee</a>
+
+    <script>
+        var csrftoken = '{{ csrf_token }}';
+    </script>
+</body>
+</html>
